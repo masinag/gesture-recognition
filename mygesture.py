@@ -46,7 +46,6 @@ def find_defects(img, contour):
     hull = cv2.convexHull(contour,returnPoints = False)
     # find the convexity defects of the contour.
     defects = cv2.convexityDefects(contour,hull)
-
     # (?)
     # cv2.drawContours(thresh1, contours, -1, (0,255,0), 3)
     # (?)
@@ -66,5 +65,10 @@ def count_defects(img, contour, defects):
         angle = math.acos((b**2 + c**2 - a**2)/(2*b*c)) * 57
         if angle <= 90:
             count_defects += 1
-
     return img, count_defects
+
+def find_gestures(img):
+    hand_contour = find_hand(img)
+    defects      = find_defects(img, hand_contour)
+    fingers_count = count_defects(img, contour, defects)
+    return fingers_count
