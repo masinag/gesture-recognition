@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import math
+import math, sys
 
 
 def find_hand(img):
@@ -70,5 +70,20 @@ def count_defects(img, contour, defects):
 def find_gestures(img):
     hand_contour = find_hand(img)
     defects      = find_defects(img, hand_contour)
-    fingers_count = count_defects(img, contour, defects)
+    img, fingers_count = count_defects(img, hand_contour, defects)
     return fingers_count
+
+def find_gestures_in_image(source):
+    image = cv2.imread(source)
+    return find_gestures(image)
+
+def find_gestures_in_video(source):
+    cap = cv2.VideoCapture(source)
+    while(cap.isOpened()):
+        ret, image = cap.read()
+        sys.stderr.write(str(find_gestures(image)))
+        k = cv2.waitKey(10)
+        if cv2.waitKey(1) & 0xFF == ord('q')  or k == 27:
+            break
+    cap.release()
+    cv2.destroyAllWindows()

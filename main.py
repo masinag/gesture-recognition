@@ -14,16 +14,16 @@ ap.add_argument('-t', '--threshold', default = 127, type = int,
                 help = 'Thresholding value to recognize the colour of the hand')
 
 source = ap.add_mutually_exclusive_group()
-source.add_argument('-v', '--video', default = '../gesture.avi',
+source.add_argument('-v', '--video',
                 help = 'Source of the video you want to analyze')
 source.add_argument('-w', '--webcam', action = 'store_true',
                 help = 'Include this option if you want to use your default' +
                         'webcam as image source')
+source.add_argument('-i', '--image',
+                help = 'Source of the image you want to analyze')
 
 args = ap.parse_args()
-#rect = {"top_left": (0,0), "bottom_right": (300,500)}
 
-# Source of images
 if not args.webcam:
     cap = cv2.VideoCapture(args.video)
 else:
