@@ -12,7 +12,7 @@ def find_hand(img):
     blurred = cv2.GaussianBlur(grey, value, 0)
 
     # threshold the image, returning a binary image
-    _, thresh1 = cv2.threshold(blurred, 127, 255,
+    _, thresholded = cv2.threshold(blurred, 127, 255,
                                cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
     # find the contours in the binary image
@@ -20,7 +20,7 @@ def find_hand(img):
     # - contours is a list of the contours detected. Each contour is
     #   represented as a list of points
     # - hierarchy is a list containing info abour the image topology.
-    contours, hierarchy = cv2.findContours(thresh1.copy(),cv2.RETR_TREE, \
+    contours, hierarchy = cv2.findContours(thresholded.copy(),cv2.RETR_TREE, \
             cv2.CHAIN_APPROX_NONE)
 
     # find the contour delimiting the biggest area
@@ -29,7 +29,7 @@ def find_hand(img):
     # find and draw the rectangle delimiting the hand
     x,y,w,h = cv2.boundingRect(cnt)
     cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),0)
-    return cnt
+    return cnt, grey, blurred, thresholded
 
 def find_defects(img, contour):
     # find the convex hull of the contour
@@ -49,7 +49,7 @@ def find_defects(img, contour):
     # (?)
     # cv2.drawContours(thresh1, contours, -1, (0,255,0), 3)
     # (?)
-    return defects
+    return defects, drawing
 
 def count_defects(img, contour, defects):
     count_defects = 0
@@ -65,28 +65,45 @@ def count_defects(img, contour, defects):
         angle = math.acos((b**2 + c**2 - a**2)/(2*b*c)) * 57
         if angle <= 90:
             count_defects += 1
-    return img, count_defects
+    return count_defects
 
 def find_gestures(img):
-    hand_contour = find_hand(img)
-    defects      = find_defects(img, hand_contour)
-    img, fingers_count = count_defects(img, hand_contour, defects)
+    hand_contour, grey, blurred, thresholded = find_hand(img)
+    defects, drawing = find_defects(img, hand_contour)
+    fingers_count = count_defects(img, hand_contour, defects)
+    return fingers_count, grey, blurred, thresholded, drawing
+
+def find_gestures_in_image(source, show):
+    image = cv2.imread(source)
+    fingers_count, grey, blurred, thresholded, drawing = find_gestures(image)
+    if show:
+        show_images((image, thresholded, drawing))
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     return fingers_count
 
-def find_gestures_in_image(source):
-    image = cv2.imread(source)
-    return find_gestures(image)
-
-def find_gestures_in_video(source):
+def find_gestures_in_video(source, show):
+    cap = cv2.VideoCapture(source)
+    total_count = fingers_count = 0
     try:
-        cap = cv2.VideoCapture(source)
         while(cap.isOpened()):
             ret, image = cap.read()
-            sys.stderr.write(str(find_gestures(image)))
-            k = cv2.waitKey(10)
-            if cv2.waitKey(1) & 0xFF == ord('q')  or k == 27:
+            previous_count = fingers_count
+            fingers_count, grey, blurred, thresholded, drawing = find_gestures(image)
+            if fingers_count != previous_count:
+                total_count += fingers_count
+                sys.stderr.write(str(fingers_count))
+            if show:
+                show_images((image, thresholded, drawing))
+            if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
     finally:
         # release the cam that we locked before
         cap.release()
         cv2.destroyAllWindows()
+    return total_count
+
+
+def show_images(images):
+    for i, image in enumerate(images):
+        cv2.imshow("%d"%i, image)

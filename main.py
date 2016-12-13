@@ -10,6 +10,8 @@ if __name__ == '__main__':
                     'you want')
     ap.add_argument('-t', '--threshold', default = 127, type = int,
                     help = 'Thresholding value to recognize the colour of the hand')
+    ap.add_argument('-s', '--show', default = 127, action = 'store_true',
+                    help = 'Show windows the steps of the image processing')
 
     source = ap.add_mutually_exclusive_group(required = True)
     source.add_argument('-v', '--video',
@@ -23,8 +25,8 @@ if __name__ == '__main__':
     args = ap.parse_args()
 
     if args.video:
-        mygesture.find_gestures_in_video(args.video)
-    elif args.webcam:
-        mygesture.find_gestures_in_video(args.webcam)
+        print(mygesture.find_gestures_in_video(args.video, args.show))
+    elif args.webcam>=0:
+        print(mygesture.find_gestures_in_video(args.webcam, args.show))
     elif args.image:
-        print(mygesture.find_gestures_in_image(args.image))
+        print(mygesture.find_gestures_in_image(args.image, args.show))
