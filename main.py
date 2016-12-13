@@ -1,11 +1,23 @@
-import cv2, math, sys, mygesture
-import numpy as np
-from argparse import ArgumentParser
+"""This program is an example of gesture recognition using Python and OpenCV. It
+allows you to analyze a image, a video or to use your webcam as image source.
+You can also decide the values used to process the image, such as the parameters
+for the blurring and the thresholding.
 
+Examples:
+    $ python main.py --image media/img/one.jpg --blur 40
+
+    $ python main.py --image media/img/two.jpg --show -t 150
+
+    $ python main.py --video media/video/gesture.avi --show
+
+"""
 if __name__ == '__main__':
+    import mygesture
+    from argparse import ArgumentParser
+
     ap = ArgumentParser(description = 'This program allows you to analyze a video' +
                                       ' and recognize hand gestures')
-    ap.add_argument('-b', '--blurring', default = 35, type = int,
+    ap.add_argument('-b', '--blur', default = 35, type = int,
                     help = 'Blurring value which represents the grade of blurring' +
                     'you want')
     ap.add_argument('-t', '--threshold', default = 127, type = int,
