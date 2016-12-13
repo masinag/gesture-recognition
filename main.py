@@ -25,8 +25,8 @@ if __name__ == '__main__':
     args = ap.parse_args()
 
     if args.video:
-        print(mygesture.find_gestures_in_video(args.video, args.show))
+        print(mygesture.count_fingers_in_video(args.video, args.show))
     elif args.webcam>=0:
-        print(mygesture.find_gestures_in_video(args.webcam, args.show))
+        print(mygesture.count_fingers_in_video(args.webcam, args.show))
     elif args.image:
-        print(mygesture.find_gestures_in_image(args.image, args.show))
+        print(mygesture.count_fingers_in_image(args.image, args.show))
