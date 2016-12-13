@@ -78,12 +78,15 @@ def find_gestures_in_image(source):
     return find_gestures(image)
 
 def find_gestures_in_video(source):
-    cap = cv2.VideoCapture(source)
-    while(cap.isOpened()):
-        ret, image = cap.read()
-        sys.stderr.write(str(find_gestures(image)))
-        k = cv2.waitKey(10)
-        if cv2.waitKey(1) & 0xFF == ord('q')  or k == 27:
-            break
-    cap.release()
-    cv2.destroyAllWindows()
+    try:
+        cap = cv2.VideoCapture(source)
+        while(cap.isOpened()):
+            ret, image = cap.read()
+            sys.stderr.write(str(find_gestures(image)))
+            k = cv2.waitKey(10)
+            if cv2.waitKey(1) & 0xFF == ord('q')  or k == 27:
+                break
+    finally:
+        # release the cam that we locked before
+        cap.release()
+        cv2.destroyAllWindows()
