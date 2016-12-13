@@ -12,7 +12,7 @@ This includes a __init__.py file which is the one you can run, and a mygesture.p
 file which is a library with useful function for this project.
 
 In the media/ directory you will find two sub-directories: images/ and videos/,
-which contain some file that you can use as examples. 
+which contain some file that you can use as examples.
 
 ## Installation
 
@@ -32,20 +32,19 @@ Below is described the installation process on Ubuntu 16.10:
 ## Usage
 Below there are some examples of usage:
 
-    $ python main.py --image media/img/one.jpg --blur 40
+    $ python main.py --image media/images/one.jpg --blur 40
 
-    $ python main.py --image media/img/two.jpg --show -t 150
+    $ python main.py --image media/images/two.jpg --show -t 150
 
-    $ python main.py --video media/video/gesture.avi --show
+    $ python main.py --video media/videos/gesture.avi --show
 
 
-Video
-=====
+## Video
 
 link: [http://goo.gl/fui2MH ](http://goo.gl/fui2MH)
 
 [![IMAGE ALT TEXT](https://img.youtube.com/vi/QYiypuWZPU0/0.jpg)](https://www.youtube.com/watch?v=QYiypuWZPU0)
 
-Original code
-========
+## Credits
+
 link: [https://github.com/vipul-sharma20/gesture-opencv](https://github.com/vipul-sharma20/gesture-opencv)

@@ -1,5 +1,3 @@
-doc.docx
-documentation.docx
-*.avi
-*.pdf
-fingers/
+doc/*
+media/images/*
+media/videos/*

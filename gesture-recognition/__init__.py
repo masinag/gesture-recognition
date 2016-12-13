@@ -4,11 +4,11 @@ You can also decide the values used to process the image, such as the parameters
 for the blurring and the thresholding.
 
 Examples:
-    $ python main.py --image media/img/one.jpg --blur 40
+    $ python main.py --image media/images/one.jpg --blur 40
 
-    $ python main.py --image media/img/two.jpg --show -t 150
+    $ python main.py --image media/images/two.jpg --show -t 150
 
-    $ python main.py --video media/video/gesture.avi --show
+    $ python main.py --video media/videos/gesture.avi --show
 
 """
 if __name__ == '__main__':
