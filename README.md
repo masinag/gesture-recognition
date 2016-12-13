@@ -39,6 +39,10 @@ Below there are some examples of usage:
 
     $ python gesture-recognition --video media/videos/gesture.avi --show
 
+You can read more details running the command:
+
+    $ python gesture-recognition --help
+
 
 ## Video
 
