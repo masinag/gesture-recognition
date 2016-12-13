@@ -93,8 +93,26 @@ def find_defects(img, contour):
     return defects, drawing
 
 def count_fingers(img, contour, defects):
-    """
-    Counts the fingers in a contour.
+
+    count_defects = 0
+    # now we try to decide what defects we are interested in
+    for i in range(defects.shape[0]):
+        # for every defect point we calculate the angle and then we decide if
+        # we have found a finger.
+        s,e,f,d = defects[i,0]
+        start = tuple(contour[s][0])
+        end = tuple(contour[e][0])
+        far = tuple(contour[f][0])
+        a = math.sqrt((end[0] - start[0])**2 + (end[1] - start[1])**2)
+        b = math.sqrt((far[0] - start[0])**2 + (far[1] - start[1])**2)
+        c = math.sqrt((end[0] - far[0])**2 + (end[1] - far[1])**2)
+        angle = math.acos((b**2 + c**2 - a**2)/(2*b*c)) * 57
+        if angle <= 90:
+            count_defects += 1
+    return count_defects
+
+def detect_num_fingers(img, contours, defects):
+    """Counts the fingers in a contour.
 
     This function, given a contour representing a hand and its convexity defects,
     understands which of them are relevant for the fingers count.
@@ -113,22 +131,75 @@ def count_fingers(img, contour, defects):
     int
         Number of fingers counted
     """
-    count_defects = 0
-    # now we try to decide what defects we are interested in
+
+    # if there are no convexity defects, possibly no hull found or no
+    # fingers extended
+    if defects is None:
+        return [0, img]
+
+    # we assume the wrist will generate two convexity defects (one on each
+    # side), so if there are no additional defect points, there are no
+    # fingers extended
+    if len(defects) <= 2:
+        return [0, img]
+
+    # if there is a sufficient amount of convexity defects, we will find a
+    # defect point between two fingers so to get the number of fingers,
+    # start counting at 1
+    num_fingers = 1
     for i in range(defects.shape[0]):
-        # for every defect point we calculate the angle and then we decide if
-        # we have found a finger.
-        s,e,f,d = defects[i,0]
-        start = tuple(contour[s][0])
-        end = tuple(contour[e][0])
-        far = tuple(contour[f][0])
-        a = math.sqrt((end[0] - start[0])**2 + (end[1] - start[1])**2)
-        b = math.sqrt((far[0] - start[0])**2 + (far[1] - start[1])**2)
-        c = math.sqrt((end[0] - far[0])**2 + (end[1] - far[1])**2)
-        angle = math.acos((b**2 + c**2 - a**2)/(2*b*c)) * 57
-        if angle <= 90:
-            count_defects += 1
-    return count_defects
+        # each defect point is a 4-tuple
+        start_idx, end_idx, farthest_idx, _ = defects[i, 0]
+        start = tuple(contours[start_idx][0])
+        end = tuple(contours[end_idx][0])
+        far = tuple(contours[farthest_idx][0])
+
+        # if angle is below a threshold, defect point belongs to two
+        # extended fingers
+        if angle_rad(np.subtract(start, far),
+                     np.subtract(end, far)) < deg2rad(80.0):
+            # increment number of fingers
+            num_fingers = num_fingers + 1
+    return min(5, num_fingers)
+
+def angle_rad(v1, v2):
+    """Angle in radians between two vectors
+
+    This method returns the angle (in radians) between two array-like
+    vectors using the cross-product method, which is more accurate for
+    small angles than the dot-product-acos method.
+
+    Parameters
+    ----------
+    v1 : numpy.ndarray
+        The first vector
+    v2 : numpy.ndarray
+        The second vector
+
+    Returns
+    -------
+    numpy.float64
+        Angle in radians between the two vectors
+    """
+    return np.arctan2(np.linalg.norm(np.cross(v1, v2)), np.dot(v1, v2))
+
+def deg2rad(angle_deg):
+    """Convert degrees to radians
+
+    This method converts an angle in radians e[0,2*np.pi) into degrees
+    e[0,360)
+
+    Parameters
+    ----------
+    angle_deg : numpy.float64
+        The angle in degrees
+
+    Returns
+    -------
+    numpy.float64
+        Angle expressed in radians
+    """
+    return angle_deg/180.0*np.pi
 
 def find_gestures(img):
     """
@@ -157,7 +228,9 @@ def find_gestures(img):
     """
     hand_contour, grey, blurred, thresholded = find_hand(img)
     defects, drawing = find_defects(img, hand_contour)
-    fingers_count = count_fingers(img, hand_contour, defects)
+    # fingers_count = count_fingers(img, hand_contour, defects)
+    fingers_count = detect_num_fingers(img, hand_contour, defects)
+
     return fingers_count, grey, blurred, thresholded, drawing
 
 def count_fingers_in_image(source, show = False):
