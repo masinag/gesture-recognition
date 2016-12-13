@@ -1,3 +1,4 @@
-doc/*
-./media/images/*.*
-./media/videos/*.*
+doc/*.docx
+doc/*.pdf
+./media/images/*.jpg
+./media/videos/*.avi
