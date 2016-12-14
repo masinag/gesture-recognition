@@ -17,9 +17,9 @@ if __name__ == '__main__':
 
     ap = ArgumentParser(description = 'This program allows you to analyze a video' +
                                       ' and recognize hand gestures')
-    ap.add_argument('-b', '--blur', default = 35, type = int,
+    ap.add_argument('-b', '--blur', default = 35, type = mygesture.odd,
                     help = 'Blurring value which represents the grade of blurring' +
-                    'you want')
+                    'you want. This value must be odd.')
     ap.add_argument('-t', '--threshold', default = 127, type = int,
                     help = 'Thresholding value to recognize the colour of the hand')
     ap.add_argument('-s', '--show', default = 127, action = 'store_true',
@@ -38,10 +38,13 @@ if __name__ == '__main__':
 
     try:
         if args.video:
-            print(mygesture.count_fingers_in_video(args.video, args.show))
+            print(mygesture.count_fingers_in_video(args.video, args.threshold,
+                                                   args.blur, args.show))
         elif args.webcam>=0:
-            print(mygesture.count_fingers_in_video(args.webcam, args.show))
+            print(mygesture.count_fingers_in_video(args.webcam, args.threshold,
+                                                   args.blur, args.show))
         elif args.image:
-            print(mygesture.count_fingers_in_image(args.image, args.show))
+            print(mygesture.count_fingers_in_image(args.image, args.threshold,
+                                                   args.blur, args.show))
     except mygesture.WrongSourceError as e:
         print(e)

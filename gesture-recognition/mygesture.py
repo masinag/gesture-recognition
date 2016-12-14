@@ -1,15 +1,21 @@
 """This module contains some useful function for the gesture recognition in an
 image or in a video."""
 
-import cv2
+import cv2, argparse
 import numpy as np
 import math, sys
 
 class WrongSourceError(Exception):
-    """Class used to manage exceptions raised during image or video loading."""
+    """Class used to handle exceptions raised during image or video loading."""
     pass
 
-def find_hand(img):
+def odd(n):
+    n = int(n)
+    if n%2 == 0:
+         raise argparse.ArgumentTypeError("%s is an invalid odd int value" % n)
+    return n
+
+def find_hand(img, threshold, blur):
     """
     Finds the contour of a hand in an image
 
@@ -36,10 +42,10 @@ def find_hand(img):
     # convert image in greyscale
     grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # blurr the image
-    value = (35, 35)
+    value = (blur, blur)
     blurred = cv2.GaussianBlur(grey, value, 0)
     # threshold the image, returning a binary image
-    _, thresholded = cv2.threshold(blurred, 127, 255,
+    _, thresholded = cv2.threshold(blurred, threshold, 255,
                                cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     # find the contours in the binary image
     # the returned values are:
@@ -139,13 +145,13 @@ def detect_num_fingers(img, contours, defects):
     # if there are no convexity defects, possibly no hull found or no
     # fingers extended
     if defects is None:
-        return [0, img]
+        return 0
 
     # we assume the wrist will generate two convexity defects (one on each
     # side), so if there are no additional defect points, there are no
     # fingers extended
     if len(defects) <= 2:
-        return [0, img]
+        return 0
 
     # if there is a sufficient amount of convexity defects, we will find a
     # defect point between two fingers so to get the number of fingers,
@@ -205,7 +211,7 @@ def deg2rad(angle_deg):
     """
     return angle_deg/180.0*np.pi
 
-def find_gestures(img):
+def find_gestures(img, threshold, blur):
     """
     Finds the gestures in an image.
 
@@ -230,7 +236,7 @@ def find_gestures(img):
     numpy.ndarray
         Image showing the contour of the hand and its convex hull
     """
-    hand_contour, grey, blurred, thresholded = find_hand(img)
+    hand_contour, grey, blurred, thresholded = find_hand(img, threshold, blur)
     defects, drawing = find_defects(img, hand_contour)
     # fingers_count = count_fingers(img, hand_contour, defects)
     fingers_count = detect_num_fingers(img, hand_contour, defects)
@@ -260,7 +266,8 @@ def count_fingers_in_image(source, show = False):
     image = cv2.imread(source)
     if not image:
         raise WrongSourceError, "Error: unable to open %s" % source
-    fingers_count, grey, blurred, thresholded, drawing = find_gestures(image)
+    fingers_count, grey, blurred, thresholded, drawing = find_gestures(image,
+                                threshold, blur)
     if show:
         images = {"Original": image, "Thresholded": thresholded, "Contour": drawing}
         show_images(images)
@@ -268,7 +275,7 @@ def count_fingers_in_image(source, show = False):
         cv2.destroyAllWindows()
     return fingers_count
 
-def count_fingers_in_video(source, show):
+def count_fingers_in_video(source, threshold, blur, show):
     """
     Counts the fingers in a video.
 
@@ -299,7 +306,8 @@ def count_fingers_in_video(source, show):
         while(cap.isOpened()):
             ret, image = cap.read()
             previous_count = fingers_count
-            fingers_count, grey, blurred, thresholded, drawing = find_gestures(image)
+            fingers_count, grey, blurred, thresholded, drawing = find_gestures(image,
+                                        threshold, blur)
             if fingers_count != previous_count:
                 total_count += fingers_count
                 if show:
