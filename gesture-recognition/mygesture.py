@@ -5,6 +5,10 @@ import cv2
 import numpy as np
 import math, sys
 
+class WrongSourceError(Exception):
+    """Class used to manage exceptions raised during image or video loading."""
+    pass
+
 def find_hand(img):
     """
     Finds the contour of a hand in an image
@@ -36,7 +40,7 @@ def find_hand(img):
     blurred = cv2.GaussianBlur(grey, value, 0)
     # threshold the image, returning a binary image
     _, thresholded = cv2.threshold(blurred, 127, 255,
-                               cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+                               cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     # find the contours in the binary image
     # the returned values are:
     # * contours is a list of the contours detected. Each contour is
@@ -254,6 +258,8 @@ def count_fingers_in_image(source, show = False):
         Number of fingers counted
     """
     image = cv2.imread(source)
+    if not image:
+        raise WrongSourceError, "Error: unable to open %s" % source
     fingers_count, grey, blurred, thresholded, drawing = find_gestures(image)
     if show:
         images = {"Original": image, "Thresholded": thresholded, "Contour": drawing}
@@ -286,6 +292,8 @@ def count_fingers_in_video(source, show):
         Sum of the fingers counted during the whole video.
     """
     cap = cv2.VideoCapture(source)
+    if not cap.isOpened():
+        raise WrongSourceError, "Error: unable to open %s" % source
     total_count = fingers_count = 0
     try:
         while(cap.isOpened()):
