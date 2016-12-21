@@ -52,7 +52,7 @@ link: [http://goo.gl/fui2MH ](http://goo.gl/fui2MH)
 
 ## Credits
 
-link: [https://github.com/vipul-sharma20/gesture-opencv](https://github.com/vipul-sharma20/gesture-opencv)
+link: [https://github.com/vipul-sharma20/gesture-opencv](https://github.com/vipul-sharma20/gesture-opencv)  
 link: [https://github.com/mbeyeler/opencv-python-blueprints/tree/master/chapter2](https://github.com/mbeyeler/opencv-python-blueprints/tree/master/chapter2)
 
 ## Github Location
