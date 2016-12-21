@@ -258,7 +258,7 @@ def count_fingers_in_image(source, show = False):
         Number of fingers counted
     """
     image = cv2.imread(source)
-    if not image:
+    if image is None:
         raise WrongSourceError, "Error: unable to open %s" % source
     fingers_count, grey, blurred, thresholded, drawing = find_gestures(image)
     if show:
@@ -298,19 +298,22 @@ def count_fingers_in_video(source, show):
     try:
         while(cap.isOpened()):
             ret, image = cap.read()
-            previous_count = fingers_count
-            fingers_count, grey, blurred, thresholded, drawing = find_gestures(image)
-            if fingers_count != previous_count:
-                total_count += fingers_count
-                if show:
-                    # write the fingers count on the standard error
-                    sys.stderr.write("%d\n" % fingers_count)
-            if show:
-                images = {"Original": image, "Thresholded": thresholded, "Contour": drawing}
-                show_images(images)
-            # if the 'q' key is pressed, the windows will be closed
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if image is None:
                 break
+            else:
+                previous_count = fingers_count
+                fingers_count, grey, blurred, thresholded, drawing = find_gestures(image)
+                if fingers_count != previous_count:
+                    total_count += fingers_count
+                    if show:
+                        # write the fingers count on the standard error
+                        sys.stderr.write("%d\n" % fingers_count)
+                if show:
+                    images = {"Original": image, "Thresholded": thresholded, "Contour": drawing}
+                    show_images(images)
+                # if the 'q' key is pressed, the windows will be closed
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
     finally:
         # release the cam that we locked before
         cap.release()
