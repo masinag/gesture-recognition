@@ -243,7 +243,7 @@ def find_gestures(img, threshold, blur):
 
     return fingers_count, grey, blurred, thresholded, drawing
 
-def count_fingers_in_image(source, show = False):
+def count_fingers_in_image(source, threshold, blur, show = False):
     """
     Counts the fingers in an image.
 
