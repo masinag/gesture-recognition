@@ -12,8 +12,13 @@ Examples:
 
 """
 if __name__ == '__main__':
-    import mygesture
+    import mygesture, logging
     from argparse import ArgumentParser
+
+    #configure logger options, set the default level at info
+    logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger(__name__)
 
     ap = ArgumentParser(description = 'This program allows you to analyze a video' +
                                       ' and recognize hand gestures')
@@ -22,7 +27,7 @@ if __name__ == '__main__':
                     'you want. This value must be odd.')
     ap.add_argument('-t', '--threshold', default = 127, type = int,
                     help = 'Thresholding value to recognize the colour of the hand')
-    ap.add_argument('-s', '--show', default = 127, action = 'store_true',
+    ap.add_argument('-s', '--show', default = True, action = 'store_true',
                     help = 'Show windows the steps of the image processing')
 
     source = ap.add_mutually_exclusive_group(required = True)
@@ -33,18 +38,33 @@ if __name__ == '__main__':
                            'default webcam is 0')
     source.add_argument('-i', '--image',
                     help = 'Location of the image you want to analyze')
+    # source.add_argument('-d', '--debug', action = 'store_true',
+    #                 help = 'Show debugging informations')
 
     args = ap.parse_args()
 
+    logging.debug('%s' % args)
+
     try:
         if args.video:
-            print(mygesture.count_fingers_in_video(args.video, args.threshold,
-                                                   args.blur, args.show))
-        elif args.webcam>=0:
-            print(mygesture.count_fingers_in_video(args.webcam, args.threshold,
-                                                   args.blur, args.show))
+            logger.info('Counted %d fingers in the video' %
+                         mygesture.count_fingers_in_video(args.video,
+                                                          args.threshold,
+                                                          args.blur,
+                                                          args.show))
+        elif not args.webcam is None:
+            logger.info('Counted %d fingers in the webcam input' %
+                         mygesture.count_fingers_in_video(args.webcam,
+                                                          args.threshold,
+                                                          args.blur,
+                                                          args.show))
         elif args.image:
-            print(mygesture.count_fingers_in_image(args.image, args.threshold,
-                                                   args.blur, args.show))
-    except mygesture.WrongSourceError as e:
-        print(e)
+            logger.info('Counted %d fingers in the image' %
+                         mygesture.count_fingers_in_image(args.image,
+                                                          args.threshold,
+                                                          args.blur,
+                                                          args.show))
+    except mygesture.WrongSourceError:
+        logger.error('Error while trying to open %s' % (args.image or
+                                                        args.video or
+                                                        args.webcam))

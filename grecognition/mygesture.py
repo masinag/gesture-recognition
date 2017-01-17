@@ -3,7 +3,10 @@ image or in a video."""
 
 import cv2, argparse
 import numpy as np
-import math, sys
+import math, sys, logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class WrongSourceError(Exception):
     """Class used to handle exceptions raised during image or video loading."""
@@ -266,6 +269,7 @@ def count_fingers_in_image(source, threshold, blur, show = False):
     image = cv2.imread(source)
     if image is None:
         raise WrongSourceError, "Error: unable to open %s" % source
+    logger.info("Opening %s..." % source)
     fingers_count, grey, blurred, thresholded, drawing = find_gestures(image,
                                 threshold, blur)
     if show:
@@ -302,6 +306,7 @@ def count_fingers_in_video(source, threshold, blur, show):
     if not cap.isOpened():
         raise WrongSourceError, "Error: unable to open %s" % source
     total_count = fingers_count = 0
+    logger.info("Opening %s..." % source)
     try:
         while(cap.isOpened()):
             ret, image = cap.read()
@@ -314,9 +319,8 @@ def count_fingers_in_video(source, threshold, blur, show):
                                             threshold, blur)
                 if fingers_count != previous_count:
                     total_count += fingers_count
-                    if show:
-                        # write the fingers count on the standard error
-                        sys.stderr.write("%d\n" % fingers_count)
+
+                    logger.info("%d fingers seen" % fingers_count)
                 if show:
                     images = {"Original": image, "Thresholded": thresholded, "Contour": drawing}
                     show_images(images)
